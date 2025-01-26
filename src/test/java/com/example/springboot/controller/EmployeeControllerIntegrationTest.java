@@ -1,7 +1,9 @@
 package com.example.springboot.controller;
 
 import com.example.springboot.dto.EmployeeDto;
+import com.example.springboot.repository.EmployeeRepository;
 import com.example.springboot.service.EmployeeService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +21,15 @@ class EmployeeControllerIntegrationTest {
 
     @Autowired
     private WebTestClient webClient;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @BeforeEach
+    public void before() {
+        System.out.println("Before Each Test");
+        employeeRepository.deleteAll().subscribe();
+    }
 
     @Test
     public void testSaveEmployee() {
@@ -85,6 +96,34 @@ class EmployeeControllerIntegrationTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .consumeWith(System.out::println);
-
     }
+
+    @Test
+    public void testUpdateEmployee(){
+
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("Alex");
+        employeeDto.setLastName("Lambert");
+        employeeDto.setEmail("alex.lambert@gmail.com");
+
+        EmployeeDto savedEmployee = employeeService.saveEmployee(employeeDto).block();
+
+        EmployeeDto updatedEmployee = new EmployeeDto();
+        updatedEmployee.setFirstName("George");
+        updatedEmployee.setLastName("Zimmerman");
+        updatedEmployee.setEmail("george.zimmerman@gmail.com");
+
+        webClient.put().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(updatedEmployee), EmployeeDto.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.firstName").isEqualTo(updatedEmployee.getFirstName())
+                .jsonPath("$.lastName").isEqualTo(updatedEmployee.getLastName())
+                .jsonPath("$.email").isEqualTo(updatedEmployee.getEmail());
+    }
+
 }
