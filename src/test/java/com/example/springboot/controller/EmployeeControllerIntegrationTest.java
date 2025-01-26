@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EmployeeControllerIntegrationTest {
 
@@ -37,5 +39,26 @@ class EmployeeControllerIntegrationTest {
                 .jsonPath("$.firstName").isEqualTo(employeeDto.getFirstName())
                 .jsonPath("$.lastName").isEqualTo(employeeDto.getLastName())
                 .jsonPath("$.email").isEqualTo(employeeDto.getEmail());
+    }
+
+    @Test
+    public void testGetSingleEmployee() {
+
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("Serge");
+        employeeDto.setLastName("Cina");
+        employeeDto.setEmail("serg.cina@gmail.com");
+
+        EmployeeDto saveEmployee = employeeService.saveEmployee(employeeDto).block();
+
+        webClient.get().uri("/api/employees/{id}", Collections.singletonMap("id", saveEmployee.getId()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .consumeWith(System.out::println)
+                .jsonPath("$.id").isEqualTo(saveEmployee.getId())
+                .jsonPath("$.firstName").isEqualTo(saveEmployee.getFirstName())
+                .jsonPath("$.lastName").isEqualTo(saveEmployee.getLastName())
+                .jsonPath("$.email").isEqualTo(saveEmployee.getEmail());
     }
 }
