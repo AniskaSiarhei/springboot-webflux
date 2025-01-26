@@ -28,6 +28,8 @@ The following technologies were used in the project:
 •  Lombok: A library to reduce boilerplate code.
 •  Reactor: A library for working with reactive data streams.
 •  Maven: A tool for project and dependency management.
+•  JUnit 5
+•  WebTestClient
 
 ▌How to Run
 
@@ -153,3 +155,11 @@ json
 •  Path Variable: id (employee ID)
 •  Response: _empty response_
 •  Status Code: 204 No Content
+
+Testing
+•   Integration tests are located in src/test/java/com/example/springboot/controller/EmployeeControllerIntegrationTest.java
+•   To run the integration tests, use the following Maven command:  
+    ```
+    ./mvnw test
+    ```   
+
