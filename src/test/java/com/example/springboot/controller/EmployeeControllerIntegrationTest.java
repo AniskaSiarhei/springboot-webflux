@@ -20,7 +20,7 @@ class EmployeeControllerIntegrationTest {
     private EmployeeService employeeService;
 
     @Autowired
-    private WebTestClient webClient;
+    private WebTestClient webTestClient;
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -39,7 +39,7 @@ class EmployeeControllerIntegrationTest {
         employeeDto.setLastName("Cina");
         employeeDto.setEmail("serg.cina@gmail.com");
 
-        webClient.post().uri("/api/employees")
+        webTestClient.post().uri("/api/employees")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(employeeDto), EmployeeDto.class)
@@ -62,7 +62,7 @@ class EmployeeControllerIntegrationTest {
 
         EmployeeDto saveEmployee = employeeService.saveEmployee(employeeDto).block();
 
-        webClient.get().uri("/api/employees/{id}", Collections.singletonMap("id", saveEmployee.getId()))
+        webTestClient.get().uri("/api/employees/{id}", Collections.singletonMap("id", saveEmployee.getId()))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -90,7 +90,7 @@ class EmployeeControllerIntegrationTest {
 
         employeeService.saveEmployee(employeeDto2).block();
 
-        webClient.get().uri("/api/employees")
+        webTestClient.get().uri("/api/employees")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -113,7 +113,7 @@ class EmployeeControllerIntegrationTest {
         updatedEmployee.setLastName("Zimmerman");
         updatedEmployee.setEmail("george.zimmerman@gmail.com");
 
-        webClient.put().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
+        webTestClient.put().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(updatedEmployee), EmployeeDto.class)
@@ -124,6 +124,23 @@ class EmployeeControllerIntegrationTest {
                 .jsonPath("$.firstName").isEqualTo(updatedEmployee.getFirstName())
                 .jsonPath("$.lastName").isEqualTo(updatedEmployee.getLastName())
                 .jsonPath("$.email").isEqualTo(updatedEmployee.getEmail());
+    }
+
+    @Test
+    public void testDeleteEmployee() {
+
+        EmployeeDto employeeDto = new EmployeeDto();
+        employeeDto.setFirstName("Alex");
+        employeeDto.setLastName("Lambert");
+        employeeDto.setEmail("alex.lambert@gmail.com");
+
+        EmployeeDto savedEmployee = employeeService.saveEmployee(employeeDto).block();
+
+        webTestClient.delete().uri("/api/employees/{id}", Collections.singletonMap("id", savedEmployee.getId()))
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody()
+                .consumeWith(System.out::println);
     }
 
 }
