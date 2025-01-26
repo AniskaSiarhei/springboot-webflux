@@ -9,8 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EmployeeControllerIntegrationTest {
 
@@ -24,7 +22,7 @@ class EmployeeControllerIntegrationTest {
     public void testSaveEmployee() {
 
         EmployeeDto employeeDto = new EmployeeDto();
-        employeeDto.setFirstName("Serg");
+        employeeDto.setFirstName("Serge");
         employeeDto.setLastName("Cina");
         employeeDto.setEmail("serg.cina@gmail.com");
 
